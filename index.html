@@ -670,6 +670,7 @@
     </style>
 </head>
 <body>
+    <div id="banner" style="display:none;background:#7f1d1d;color:#fee2e2;padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:0.85rem;"></div>
     <!-- Login Modal -->
     <div class="login-modal" id="loginModal">
         <div class="login-box">
@@ -677,8 +678,8 @@
             <p>Secure Access Required</p>
             
             <div class="role-tabs">
-                <button class="role-tab active" onclick="switchRole('viewer')">👁️ Viewer</button>
-                <button class="role-tab" onclick="switchRole('admin')">🔐 Admin</button>
+                <button class="role-tab active" onclick="switchRole('viewer', this)">👁️ Viewer</button>
+                <button class="role-tab" onclick="switchRole('admin', this)">🔐 Admin</button>
             </div>
 
             <div id="viewerForm" class="form-group">
@@ -718,10 +719,10 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('investment')">📊 Investment</button>
-            <button class="nav-tab" onclick="switchTab('loan')">💰 Loan</button>
-            <button class="nav-tab" onclick="switchTab('rules')">📋 Rules</button>
-            <button class="nav-tab" onclick="switchTab('prodata')">📈 Pro Data</button>
+            <button class="nav-tab active" onclick="switchTab('investment', this)">📊 Investment</button>
+            <button class="nav-tab" onclick="switchTab('loan', this)">💰 Loan</button>
+            <button class="nav-tab" onclick="switchTab('rules', this)">📋 Rules</button>
+            <button class="nav-tab" onclick="switchTab('prodata', this)">📈 Pro Data</button>
         </div>
 
         <!-- Investment Tab -->
@@ -927,10 +928,16 @@
 
         // PASTE your Apps Script web app URL here (ends with /exec)
         const API_URL = 'https://script.google.com/macros/s/AKfycbwxWKDpnkmkzjL7K1cVx_i6MsLJSRm67SwQn4n6PiQO1DW5VeXDS5I27IrzxQmEzAMUnQ/exec';
+        const API_OK = /^https:\/\/script\.google\.com\/macros\/s\/[^\/]+\/exec$/.test(API_URL);
+        function apiProblem() {
+            return 'Setup error: API_URL in index.html must be the Apps Script Web app URL ending in /exec (https://script.google.com/macros/s/.../exec).';
+        }
         let adminPwd = '';
+        function showBanner(msg) { var b = document.getElementById('banner'); b.textContent = msg; b.style.display = 'block'; }
 
         // text/plain avoids CORS preflight, which Apps Script does not support
         function api(payload) {
+            if (!API_OK) return Promise.reject(new Error(apiProblem()));
             return fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -939,6 +946,7 @@
         }
 
         function loadData(done) {
+            if (!API_OK) { data.payments = initPayments(); showBanner(apiProblem()); if (done) done(); return; }
             fetch(API_URL + '?action=get')
                 .then(function (r) { return r.json(); })
                 .then(function (res) {
@@ -949,7 +957,7 @@
                     if (done) done();
                 })
                 .catch(function (e) {
-                    alert('Could not load data: ' + e.message);
+                    showBanner('Could not load shared data (' + e.message + '). Showing defaults.');
                     data.payments = initPayments();
                     if (done) done();
                 });
@@ -963,9 +971,9 @@
         }
 
         // Auth Functions
-        function switchRole(role) {
+        function switchRole(role, el) {
             document.querySelectorAll('.role-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            el.classList.add('active');
             
             if (role === 'viewer') {
                 document.getElementById('viewerForm').classList.remove('hidden');
@@ -982,6 +990,7 @@
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             render();
+            loadData(function () { render(); });
         }
 
         function loginAsAdmin() {
@@ -1099,14 +1108,14 @@
         }
 
         // Tab Navigation
-        function switchTab(tab) {
+        function switchTab(tab, el) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             
             // Show selected tab
             document.getElementById(tab + '-tab').classList.add('active');
-            event.target.classList.add('active');
+            el.classList.add('active');
             
             // Render content if needed
             if (tab === 'prodata') {
