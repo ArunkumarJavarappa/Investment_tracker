@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Investment Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #cbd5e1;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-box h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .login-box p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .role-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: #334155;
+            color: #cbd5e1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .role-tab.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: #cbd5e1;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .admin-badge {
+            background: #2563eb;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .viewer-badge {
+            background: #64748b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .btn-logout {
+            background: #dc2626;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        /* Card Styles */
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        /* Config Panel */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input:disabled {
+            background: #0f172a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Members Grid */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .member-card {
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .member-card label {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-card input:disabled {
+            background: #0f172a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 0.75rem;
+            background: #334155;
+            color: #cbd5e1;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .tab-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Legend */
+        .legend {
+            background: #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #475569;
+        }
+
+        .legend-title {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .badge-paid {
+            background: #15803d;
+            color: #dcfce7;
+        }
+
+        .badge-pending {
+            background: #475569;
+            color: #cbd5e1;
+        }
+
+        .badge-delayed {
+            background: #7f1d1d;
+            color: #fee2e2;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        thead {
+            background: #334155;
+            color: white;
+        }
+
+        th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-top: 1px solid #334155;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #0f172a;
+        }
+
+        tbody tr:nth-child(odd) {
+            background: transparent;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-green {
+            color: #4ade80;
+        }
+
+        .text-blue {
+            color: #60a5fa;
+        }
+
+        .text-red {
+            color: #f87171;
+        }
+
+        .text-yellow {
+            color: #fbbf24;
+        }
+
+        /* Payment Button */
+        .payment-btn {
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 85px;
+        }
+
+        .payment-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .payment-btn.paid {
+            background: #15803d;
+            color: #dcfce7;
+        }
+
+        .payment-btn.pending {
+            background: #475569;
+            color: #cbd5e1;
+        }
+
+        .payment-btn.delayed {
+            background: #7f1d1d;
+            color: #fee2e2;
+        }
+
+        .payment-btn:not(:disabled):hover {
+            opacity: 0.8;
+        }
+
+        /* Summary Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            background: #334155;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .summary-label {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .member-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            background: #334155;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .member-item-name {
+            color: #cbd5e1;
+        }
+
+        .member-item-value {
+            color: white;
+            font-weight: bold;
+        }
+
+        .member-item-fee {
+            color: #f87171;
+            font-size: 0.75rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #334155;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .nav-tab:hover {
+            color: #cbd5e1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Rules Section */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .rule-item {
+            background: #334155;
+            border-left: 4px solid #2563eb;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .rule-title {
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .rule-content {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Annual Summary */
+        .annual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .annual-card {
+            background: #334155;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #475569;
+        }
+
+        .annual-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .annual-member-name {
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .annual-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #475569;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .annual-stat:last-child {
+            border-bottom: none;
+        }
+
+        .annual-stat-value {
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title h1 {
+                font-size: 1.75rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+
+            .role-tabs {
+                flex-direction: column;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .overflow-auto {
+            overflow-x: auto;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            padding-bottom: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <h1>🏦 Investment Tracker</h1>
+            <p>Secure Access Required</p>
+            
+            <div class="role-tabs">
+                <button class="role-tab active" onclick="switchRole('viewer')">👁️ Viewer</button>
+                <button class="role-tab" onclick="switchRole('admin')">🔐 Admin</button>
+            </div>
+
+            <div id="viewerForm" class="form-group">
+                <label>No password needed - View only access</label>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="loginAsViewer()">
+                    📖 Enter as Viewer
+                </button>
+                <p style="color: #64748b; margin-top: 0.75rem; font-size: 0.8rem;">View all data but cannot edit</p>
+            </div>
+
+            <div id="adminForm" class="hidden">
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="password" id="passwordInput" placeholder="Enter admin password" onkeypress="if(event.key==='Enter') loginAsAdmin()">
+                </div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="loginAsAdmin()">
+                    🔓 Unlock Admin Access
+                </button>
+                <p style="color: #64748b; margin-top: 0.75rem; font-size: 0.8rem;">Admin can edit all data and settings</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="container hidden" id="mainApp">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <h1>🏦 Friends Investment Tracker</h1>
+                <p>Manage joint investments with transparency & ease</p>
+            </div>
+            <div class="header-actions">
+                <div id="roleBadge" class="viewer-badge">👁️ Viewer Mode</div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('investment')">📊 Investment</button>
+            <button class="nav-tab" onclick="switchTab('loan')">💰 Loan</button>
+            <button class="nav-tab" onclick="switchTab('rules')">📋 Rules</button>
+            <button class="nav-tab" onclick="switchTab('prodata')">📈 Pro Data</button>
+        </div>
+
+        <!-- Investment Tab -->
+        <div class="tab-content active" id="investment-tab">
+            <!-- Config Panel -->
+        <div class="card" id="configCard">
+            <h2>⚙️ Configuration</h2>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label>Annual ROI (%)</label>
+                    <input type="number" id="annualROI" value="4" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Loan ROI (%/month)</label>
+                    <input type="number" id="loanROI" value="1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Late Fee (₹)</label>
+                    <input type="number" id="lateFee" value="100" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Lock-in Period (months)</label>
+                    <input type="number" id="lockInMonths" value="6" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Panel -->
+        <div class="card" id="membersCard">
+            <h2>👥 Members</h2>
+            <div class="members-grid" id="membersGrid"></div>
+        </div>
+
+        <!-- Investment Ledgers -->
+        <div class="card">
+            <h2>📊 Investment Ledgers</h2>
+            
+            <div class="legend">
+                <div class="legend-title">Payment Status Guide:</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="badge badge-paid">Paid</span>
+                        <span>Payment on time (no fine)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-pending">Pending</span>
+                        <span>Awaiting payment (no fine)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="badge badge-delayed">Payment Delayed</span>
+                        <span>Paid after 8th (₹100 fine)</span>
+                    </div>
+                </div>
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.75rem;">💡 Click payment status to cycle through options (Admin only)</div>
+            </div>
+
+            <div class="tabs" id="memberTabs"></div>
+            <div id="ledgerContent"></div>
+        </div>
+
+        </div><!-- End Investment Tab -->
+
+        <!-- Loan Tab -->
+        <div class="tab-content" id="loan-tab">
+        <!-- Loan Calculator -->
+        <div class="card">
+            <h2>💰 Loan Calculator (1% per month)</h2>
+            
+            <div class="config-grid" style="background: #334155; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label>Borrowing Member</label>
+                    <select id="loanMemberId">
+                        <option value="A">Member A</option>
+                        <option value="B">Member B</option>
+                        <option value="C">Member C</option>
+                        <option value="D">Member D</option>
+                        <option value="E">Member E</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Loan Amount (₹)</label>
+                    <input type="number" id="loanAmount" value="100000" step="1000">
+                </div>
+                <div class="form-group">
+                    <label>EMI Tenure (months)</label>
+                    <select id="loanEMI">
+                        <option value="3">3 EMI</option>
+                        <option value="6">6 EMI</option>
+                        <option value="9">9 EMI</option>
+                        <option value="12">12 EMI</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-auto">
+                <table id="loanTable">
+                    <thead>
+                        <tr>
+                            <th>EMI #</th>
+                            <th class="text-right">Opening (₹)</th>
+                            <th class="text-right">Principal (₹)</th>
+                            <th class="text-right">Interest (₹)</th>
+                            <th class="text-right">EMI (₹)</th>
+                            <th class="text-right">Closing (₹)</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loanTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="summary-grid" id="loanSummary"></div>
+        </div>
+
+        </div><!-- End Loan Tab -->
+
+        <!-- Rules Tab -->
+        <div class="tab-content" id="rules-tab">
+        <div class="card">
+            <h2>📋 Investment Rules & Policies</h2>
+            <div class="rules-grid" id="rulesContainer"></div>
+        </div>
+        </div><!-- End Rules Tab -->
+
+        <!-- Pro Data Tab -->
+        <div class="tab-content" id="prodata-tab">
+        <div class="card">
+            <h2>📈 Annual Pro Data & Statistics</h2>
+            <div id="prodataContainer"></div>
+        </div>
+        </div><!-- End ProData Tab -->
+
+        <!-- Summary -->
+        <div class="card">
+            <h2>📈 Pool Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <h3>Pool Statistics</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Monthly Pool:</span>
+                            <span style="font-weight: bold; color: white;" id="poolMonthly">₹0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Total Invested (12 months):</span>
+                            <span style="font-weight: bold; color: white;" id="poolInvested">₹0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Total Interest Earned:</span>
+                            <span style="font-weight: bold; color: #22c55e;" id="poolInterest">₹0</span>
+                        </div>
+                        <div style="border-top: 1px solid #475569; padding-top: 0.75rem; margin-top: 0.75rem; display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>Final Pool Balance:</span>
+                            <span style="color: #93c5fd;" id="poolBalance">₹0</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Member Breakdown</h3>
+                    <div class="member-summary" id="memberBreakdown"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>💡 All data is saved online to the shared Google Sheet</p>
+            <p style="margin-top: 0.5rem; color: #475569;">Perfect for sharing investment group updates via WhatsApp</p>
+        </footer>
+    </div>
+
+    <script>
+        // State Management
+        let isAdmin = false;
+        let currentTab = 'A';
+        let data = {
+            members: [
+                { id: 'A', name: 'Member A', monthlyInv: 10000 },
+                { id: 'B', name: 'Member B', monthlyInv: 10000 },
+                { id: 'C', name: 'Member C', monthlyInv: 10000 },
+                { id: 'D', name: 'Member D', monthlyInv: 5000 },
+                { id: 'E', name: 'Member E', monthlyInv: 5000 }
+            ],
+            config: {
+                annualROI: 4,
+                loanROI: 1,
+                lateFee: 100,
+                lockInMonths: 6,
+                duration: 12
+            },
+            payments: {}
+        };
+
+        // Initialize payment status - July (month 1) = Paid, others = Pending
+        const initPayments = () => {
+            const payments = {};
+            data.members.forEach(member => {
+                for (let month = 1; month <= 12; month++) {
+                    payments[`${member.id}-${month}`] = month === 1 ? 'Paid' : 'Pending';
+                }
+            });
+            return payments;
+        };
+
+        // PASTE your Apps Script web app URL here (ends with /exec)
+        const API_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnT9qDSK90raEwONkOTCaiP0XR4j5EyAaejOdPn_aWL1qq5DdzRdf87iJmCi67aJD2I30opjrDA_bJqiUKBsLZNHvXsg3uje6W8UKNFsbNU-o4BdN3i6N-GwAQs6fEofxnm_7LuIkF6LPrP7WbZQBcLRlgjpDbAXgTAdmYnuxaJCfSh_MRYbj--CVx3AUrNgvLrDqkSgAaBcMZ3vwEmJTPfRawpWW4AsAubYufuRE4K4VLGXEC2KT8wI1qUwNWKxLwS89agkvokV2CR-f5JfpJrfekZ-rg&lib=MJ4Kcs9LNMWJzGuQspUqVC4I8NcS348as;
+        let adminPwd = '';
+
+        // text/plain avoids CORS preflight, which Apps Script does not support
+        function api(payload) {
+            return fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(function (r) { return r.json(); });
+        }
+
+        function loadData(done) {
+            fetch(API_URL + '?action=get')
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    try {
+                        if (res.data) { data = JSON.parse(res.data); }
+                        else { data.payments = initPayments(); }
+                    } catch (e) { data.payments = initPayments(); }
+                    if (done) done();
+                })
+                .catch(function (e) {
+                    alert('Could not load data: ' + e.message);
+                    data.payments = initPayments();
+                    if (done) done();
+                });
+        }
+
+        function saveData() {
+            if (!isAdmin) return;
+            api({ action: 'save', pwd: adminPwd, data: JSON.stringify(data) })
+                .then(function (res) { if (!res.ok) alert('Save failed: ' + (res.error || 'unknown')); })
+                .catch(function (e) { alert('Save failed: ' + e.message); });
+        }
+
+        // Auth Functions
+        function switchRole(role) {
+            document.querySelectorAll('.role-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (role === 'viewer') {
+                document.getElementById('viewerForm').classList.remove('hidden');
+                document.getElementById('adminForm').classList.add('hidden');
+            } else {
+                document.getElementById('viewerForm').classList.add('hidden');
+                document.getElementById('adminForm').classList.remove('hidden');
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function loginAsViewer() {
+            isAdmin = false;
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            render();
+        }
+
+        function loginAsAdmin() {
+            const password = document.getElementById('passwordInput').value;
+            api({ action: 'verify', pwd: password })
+                .then(function (res) {
+                    if (res.ok) {
+                        isAdmin = true;
+                        adminPwd = password;
+                        document.getElementById('loginModal').classList.add('hidden');
+                        document.getElementById('mainApp').classList.remove('hidden');
+                        render();
+                    } else {
+                        alert('❌ Incorrect password!');
+                        document.getElementById('passwordInput').value = '';
+                    }
+                })
+                .catch(function (e) { alert('Server error: ' + e.message); });
+        }
+
+        function logout() {
+            isAdmin = false;
+            adminPwd = '';
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Utility Functions
+        function formatCurrency(val) {
+            return '₹' + Math.round(val).toLocaleString('en-IN');
+        }
+
+        const months = ['Jul-26', 'Aug-26', 'Sep-26', 'Oct-26', 'Nov-26', 'Dec-26',
+                        'Jan-27', 'Feb-27', 'Mar-27', 'Apr-27', 'May-27', 'Jun-27'];
+
+        // Calculations
+        function calculateLedger(monthlyInv) {
+            const ledger = [];
+            const monthlyRate = data.config.annualROI / 12 / 100;
+            let balance = 0;
+            let cumulativeInterest = 0;
+
+            for (let i = 0; i < data.config.duration; i++) {
+                const opening = balance;
+                const interest = opening * monthlyRate;
+                const closing = opening + monthlyInv + interest;
+                const isLocked = i < data.config.lockInMonths;
+                
+                ledger.push({
+                    month: i + 1,
+                    monthName: months[i],
+                    opening,
+                    investment: monthlyInv,
+                    interest,
+                    closing,
+                    locked: isLocked,
+                    cumInterest: cumulativeInterest + interest
+                });
+
+                balance = closing;
+                cumulativeInterest += interest;
+            }
+
+            return ledger;
+        }
+
+        function calculateLoan(loanAmount, emiCount) {
+            const schedule = [];
+            const monthlyRate = data.config.loanROI / 100;
+            const principalPerEMI = loanAmount / emiCount;
+            let outstanding = loanAmount;
+
+            for (let i = 0; i < emiCount; i++) {
+                const interest = outstanding * monthlyRate;
+                const principal = i === emiCount - 1 ? outstanding : principalPerEMI;
+                const emi = principal + interest;
+                outstanding -= principal;
+
+                schedule.push({
+                    emiNum: i + 1,
+                    opening: Math.round((loanAmount - principalPerEMI * i) * 100) / 100,
+                    principal: Math.round(principal * 100) / 100,
+                    interest: Math.round(interest * 100) / 100,
+                    emi: Math.round(emi * 100) / 100,
+                    closing: Math.round(Math.max(0, outstanding) * 100) / 100
+                });
+            }
+
+            return schedule;
+        }
+
+        function getPaymentStatus(memberId, month) {
+            const key = `${memberId}-${month}`;
+            return data.payments[key] || 'Paid';
+        }
+
+        function togglePaymentStatus(memberId, month) {
+            const key = `${memberId}-${month}`;
+            const current = getPaymentStatus(memberId, month);
+            if (current === 'Paid') {
+                data.payments[key] = 'Pending';
+            } else if (current === 'Pending') {
+                data.payments[key] = 'Payment Delayed';
+            } else {
+                data.payments[key] = 'Paid';
+            }
+            saveData();
+            render();
+        }
+
+        function getLateFee(memberId, month) {
+            const status = getPaymentStatus(memberId, month);
+            return status === 'Payment Delayed' ? data.config.lateFee : 0;
+        }
+
+        // Tab Navigation
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Render content if needed
+            if (tab === 'prodata') {
+                renderProData();
+            } else if (tab === 'rules') {
+                renderRules();
+            }
+        }
+
+        // Render Functions
+        function renderMembers() {
+            const grid = document.getElementById('membersGrid');
+            grid.innerHTML = data.members.map(member => `
+                <div class="member-card">
+                    <label>Member ${member.id}</label>
+                    <input type="text" value="${member.name}" 
+                        ${!isAdmin ? 'disabled' : ''}
+                        onchange="updateMember('${member.id}', 'name', this.value)">
+                    <label style="margin-top: 0.5rem;">Monthly (₹)</label>
+                    <input type="number" value="${member.monthlyInv}"
+                        ${!isAdmin ? 'disabled' : ''}
+                        onchange="updateMember('${member.id}', 'monthlyInv', parseInt(this.value))">
+                </div>
+            `).join('');
+        }
+
+        function updateMember(id, field, value) {
+            const member = data.members.find(m => m.id === id);
+            if (member) {
+                member[field] = value;
+                saveData();
+                render();
+            }
+        }
+
+        function renderConfig() {
+            document.getElementById('annualROI').disabled = !isAdmin;
+            document.getElementById('loanROI').disabled = !isAdmin;
+            document.getElementById('lateFee').disabled = !isAdmin;
+            document.getElementById('lockInMonths').disabled = !isAdmin;
+
+            document.getElementById('annualROI').onchange = function() {
+                data.config.annualROI = parseFloat(this.value);
+                saveData();
+                renderLedgers();
+            };
+
+            document.getElementById('loanROI').onchange = function() {
+                data.config.loanROI = parseFloat(this.value);
+                saveData();
+                renderLoan();
+            };
+
+            document.getElementById('lateFee').onchange = function() {
+                data.config.lateFee = parseInt(this.value);
+                saveData();
+                renderLedgers();
+            };
+
+            document.getElementById('lockInMonths').onchange = function() {
+                data.config.lockInMonths = parseInt(this.value);
+                saveData();
+                renderLedgers();
+            };
+        }
+
+        function renderLedgers() {
+            // Tabs
+            const tabs = document.getElementById('memberTabs');
+            tabs.innerHTML = data.members.map(member => `
+                <button class="tab-btn ${member.id === currentTab ? 'active' : ''}" 
+                    onclick="currentTab='${member.id}'; renderLedgers()">
+                    ${member.id}
+                </button>
+            `).join('');
+
+            // Content
+            const content = document.getElementById('ledgerContent');
+            const member = data.members.find(m => m.id === currentTab);
+            if (!member) return;
+
+            const ledger = calculateLedger(member.monthlyInv);
+            const totalInvested = member.monthlyInv * data.config.duration;
+            const totalInterest = ledger[ledger.length - 1].cumInterest;
+            const totalLateFees = ledger.reduce((sum, row) => sum + getLateFee(member.id, row.month), 0);
+            const finalBalance = ledger[ledger.length - 1].closing;
+
+            let html = `<div style="overflow-x: auto; margin-bottom: 1rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th class="text-right">Opening (₹)</th>
+                            <th class="text-right">Investment (₹)</th>
+                            <th class="text-right">Interest (₹)</th>
+                            <th class="text-right">Closing (₹)</th>
+                            <th class="text-center">Payment</th>
+                            <th class="text-right">Late Fee (₹)</th>
+                            <th class="text-center">Lock</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            ledger.forEach(row => {
+                const payStatus = getPaymentStatus(member.id, row.month);
+                const lateFee = getLateFee(member.id, row.month);
+                const statusClass = payStatus === 'Paid' ? 'paid' : payStatus === 'Pending' ? 'pending' : 'delayed';
+                
+                html += `<tr>
+                    <td>${row.monthName}</td>
+                    <td class="text-right">${row.opening.toFixed(2)}</td>
+                    <td class="text-right">${row.investment.toFixed(2)}</td>
+                    <td class="text-right text-green">${row.interest.toFixed(2)}</td>
+                    <td class="text-right text-blue">${row.closing.toFixed(2)}</td>
+                    <td class="text-center">
+                        <button class="payment-btn ${statusClass}" 
+                            ${!isAdmin ? 'disabled' : ''}
+                            onclick="togglePaymentStatus('${member.id}', ${row.month})">
+                            ${payStatus}
+                        </button>
+                    </td>
+                    <td class="text-right" style="color: ${lateFee > 0 ? '#f87171' : '#4ade80'}; font-weight: 600;">
+                        ${lateFee > 0 ? lateFee : '-'}
+                    </td>
+                    <td class="text-center">
+                        <span class="badge ${row.locked ? 'badge-delayed' : 'badge-paid'}">
+                            ${row.locked ? 'Locked' : 'Free'}
+                        </span>
+                    </td>
+                </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+
+            html += `<div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Invested</div>
+                    <div class="summary-value">${formatCurrency(totalInvested)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Interest Earned</div>
+                    <div class="summary-value text-green">${formatCurrency(totalInterest)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Late Fees Charged</div>
+                    <div class="summary-value" style="color: ${totalLateFees > 0 ? '#f87171' : '#4ade80'};">
+                        ${formatCurrency(totalLateFees)}
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Final Balance</div>
+                    <div class="summary-value text-blue">${formatCurrency(finalBalance)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">ROI %</div>
+                    <div class="summary-value text-yellow">${((totalInterest / totalInvested) * 100).toFixed(2)}%</div>
+                </div>
+            </div>`;
+
+            content.innerHTML = html;
+        }
+
+        function renderLoan() {
+            const loanAmount = parseInt(document.getElementById('loanAmount').value);
+            const emiCount = parseInt(document.getElementById('loanEMI').value);
+            const schedule = calculateLoan(loanAmount, emiCount);
+
+            let html = `<tbody>`;
+            schedule.forEach(row => {
+                html += `<tr>
+                    <td>${row.emiNum}</td>
+                    <td class="text-right">${row.opening.toFixed(2)}</td>
+                    <td class="text-right text-blue">${row.principal.toFixed(2)}</td>
+                    <td class="text-right text-red">${row.interest.toFixed(2)}</td>
+                    <td class="text-right text-yellow"><strong>${row.emi.toFixed(2)}</strong></td>
+                    <td class="text-right">${row.closing.toFixed(2)}</td>
+                    <td class="text-center"><span class="badge badge-paid">Paid</span></td>
+                </tr>`;
+            });
+            html += `</tbody>`;
+
+            document.getElementById('loanTableBody').innerHTML = html;
+
+            const totalInterest = schedule.reduce((sum, row) => sum + row.interest, 0);
+            const totalRepayment = loanAmount + totalInterest;
+
+            document.getElementById('loanSummary').innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-label">Loan Amount</div>
+                    <div class="summary-value">${formatCurrency(loanAmount)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Interest</div>
+                    <div class="summary-value text-red">${formatCurrency(totalInterest)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Repayment</div>
+                    <div class="summary-value text-blue">${formatCurrency(totalRepayment)}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Cost %</div>
+                    <div class="summary-value text-yellow">${((totalInterest / loanAmount) * 100).toFixed(2)}%</div>
+                </div>
+            `;
+        }
+
+        function renderSummary() {
+            const totalInvested = data.members.reduce((sum, m) => sum + (m.monthlyInv * data.config.duration), 0);
+            const totalInterest = data.members.reduce((sum, m) => {
+                const ledger = calculateLedger(m.monthlyInv);
+                return sum + ledger[ledger.length - 1].cumInterest;
+            }, 0);
+            const totalBalance = data.members.reduce((sum, m) => {
+                const ledger = calculateLedger(m.monthlyInv);
+                return sum + ledger[ledger.length - 1].closing;
+            }, 0);
+
+            document.getElementById('poolMonthly').textContent = formatCurrency(
+                data.members.reduce((sum, m) => sum + m.monthlyInv, 0)
+            );
+            document.getElementById('poolInvested').textContent = formatCurrency(totalInvested);
+            document.getElementById('poolInterest').textContent = formatCurrency(totalInterest);
+            document.getElementById('poolBalance').textContent = formatCurrency(totalBalance);
+
+            let breakdown = ``;
+            data.members.forEach(member => {
+                const ledger = calculateLedger(member.monthlyInv);
+                const totalInt = ledger[ledger.length - 1].cumInterest;
+                const totalLateFees = ledger.reduce((sum, row) => sum + getLateFee(member.id, row.month), 0);
+                const finalBal = ledger[ledger.length - 1].closing;
+
+                breakdown += `<div class="member-item">
+                    <div class="member-item-name">
+                        <div>${member.name}</div>
+                        ${totalLateFees > 0 ? `<div class="member-item-fee">Late fees: ${formatCurrency(totalLateFees)}</div>` : ''}
+                    </div>
+                    <div class="member-item-value">
+                        ${formatCurrency(finalBal)} <span style="color: #22c55e; font-size: 0.75rem;">+${totalInt.toFixed(0)}</span>
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('memberBreakdown').innerHTML = breakdown;
+        }
+
+        function renderUI() {
+            const card = document.getElementById('configCard');
+            const membersCard = document.getElementById('membersCard');
+
+            if (isAdmin) {
+                document.getElementById('roleBadge').textContent = '🔐 Admin Mode';
+                document.getElementById('roleBadge').className = 'admin-badge';
+                card.style.display = 'block';
+                membersCard.style.display = 'block';
+            } else {
+                document.getElementById('roleBadge').textContent = '👁️ Viewer Mode';
+                document.getElementById('roleBadge').className = 'viewer-badge';
+                card.style.display = 'none';
+                membersCard.style.display = 'none';
+            }
+
+            document.getElementById('loanMemberId').disabled = !isAdmin;
+            document.getElementById('loanAmount').disabled = !isAdmin;
+            document.getElementById('loanEMI').disabled = !isAdmin;
+        }
+
+        function renderRules() {
+            const rulesHTML = `
+                <div class="rule-item">
+                    <div class="rule-title">💰 Investment Rules</div>
+                    <div class="rule-content">
+                        <strong>Monthly Contribution:</strong> Varies per member<br>
+                        <strong>Duration:</strong> 12 months (Jul 2026 - Jun 2027)<br>
+                        <strong>ROI:</strong> ${data.config.annualROI}% per annum<br>
+                        <strong>Monthly ROI:</strong> ${(data.config.annualROI / 12).toFixed(4)}%
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-title">🔒 Lock-in Period</div>
+                    <div class="rule-content">
+                        <strong>Duration:</strong> ${data.config.lockInMonths} months<br>
+                        <strong>Eligibility:</strong> After 6th investment<br>
+                        <strong>Lock-in End:</strong> December 2026<br>
+                        <strong>Withdrawals:</strong> Not allowed during lock-in
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-title">⏰ Payment Schedule</div>
+                    <div class="rule-content">
+                        <strong>Due Date:</strong> 8th of every month<br>
+                        <strong>Late Fee:</strong> ₹${data.config.lateFee} if paid after 8th<br>
+                        <strong>Payment Modes:</strong> Bank Transfer / Cash<br>
+                        <strong>Status Tracking:</strong> Paid / Pending / Payment Delayed
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-title">💳 Loan Rules</div>
+                    <div class="rule-content">
+                        <strong>Interest Rate:</strong> ${data.config.loanROI}% per month<br>
+                        <strong>Loan Limit:</strong> Max = Member's corpus<br>
+                        <strong>Eligibility:</strong> After lock-in ends<br>
+                        <strong>EMI Options:</strong> 3, 6, 9, or 12 months
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-title">📊 Interest Calculation</div>
+                    <div class="rule-content">
+                        <strong>Formula:</strong> Opening Bal × Monthly Rate<br>
+                        <strong>Compounding:</strong> Monthly<br>
+                        <strong>Example:</strong> ₹10,000 @ 4% = ₹33.33/month<br>
+                        <strong>Yearly:</strong> ₹10,000 × 4% = ₹400
+                    </div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-title">⚠️ Penalties</div>
+                    <div class="rule-content">
+                        <strong>Late Payment:</strong> ₹${data.config.lateFee}<br>
+                        <strong>Applied When:</strong> Payment after 8th<br>
+                        <strong>Frequency:</strong> Per month per member<br>
+                        <strong>No Penalty:</strong> If marked "Paid" or "Pending"
+                    </div>
+                </div>
+            `;
+            document.getElementById('rulesContainer').innerHTML = rulesHTML;
+        }
+
+        function renderProData() {
+            let proDataHTML = `<div class="summary-grid">`;
+            
+            data.members.forEach(member => {
+                const ledger = calculateLedger(member.monthlyInv);
+                const totalInvested = member.monthlyInv * data.config.duration;
+                const totalInterest = ledger[ledger.length - 1].cumInterest;
+                const totalLateFees = ledger.reduce((sum, row) => sum + getLateFee(member.id, row.month), 0);
+                const finalBalance = ledger[ledger.length - 1].closing;
+                
+                // Calculate current paid (sum of all "Paid" status payments)
+                let currentPaid = 0;
+                for (let month = 1; month <= data.config.duration; month++) {
+                    if (getPaymentStatus(member.id, month) === 'Paid') {
+                        currentPaid += member.monthlyInv;
+                    }
+                }
+
+                const roi = ((totalInterest / totalInvested) * 100).toFixed(2);
+                
+                proDataHTML += `
+                    <div class="annual-card">
+                        <div class="annual-header">
+                            <div class="annual-member-name">${member.name}</div>
+                            <span style="color: #94a3b8; font-size: 0.85rem;">Member ${member.id}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Monthly Contribution</span>
+                            <span class="annual-stat-value">${formatCurrency(member.monthlyInv)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Current Paid (Received)</span>
+                            <span class="annual-stat-value text-green">${formatCurrency(currentPaid)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Current Interest Earned</span>
+                            <span class="annual-stat-value text-green">${formatCurrency(totalInterest)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Total Invested (12 months)</span>
+                            <span class="annual-stat-value">${formatCurrency(totalInvested)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Late Fees Charged</span>
+                            <span class="annual-stat-value" style="color: ${totalLateFees > 0 ? '#f87171' : '#4ade80'};">${formatCurrency(totalLateFees)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Final Balance</span>
+                            <span class="annual-stat-value text-blue">${formatCurrency(finalBalance)}</span>
+                        </div>
+                        <div class="annual-stat">
+                            <span>Annual ROI %</span>
+                            <span class="annual-stat-value text-yellow">${roi}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Pool Summary
+            const totalInvested = data.members.reduce((sum, m) => sum + (m.monthlyInv * data.config.duration), 0);
+            const totalInterest = data.members.reduce((sum, m) => {
+                const ledger = calculateLedger(m.monthlyInv);
+                return sum + ledger[ledger.length - 1].cumInterest;
+            }, 0);
+            const totalBalance = data.members.reduce((sum, m) => {
+                const ledger = calculateLedger(m.monthlyInv);
+                return sum + ledger[ledger.length - 1].closing;
+            }, 0);
+            
+            let totalCurrentPaid = 0;
+            data.members.forEach(member => {
+                for (let month = 1; month <= data.config.duration; month++) {
+                    if (getPaymentStatus(member.id, month) === 'Paid') {
+                        totalCurrentPaid += member.monthlyInv;
+                    }
+                }
+            });
+            
+            const totalLateFees = data.members.reduce((sum, m) => {
+                const ledger = calculateLedger(m.monthlyInv);
+                return sum + ledger.reduce((feeSum, row) => feeSum + getLateFee(m.id, row.month), 0);
+            }, 0);
+
+            proDataHTML += `</div>
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h3>🏊 Pool Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Monthly Pool</div>
+                            <div class="summary-value">${formatCurrency(data.members.reduce((sum, m) => sum + m.monthlyInv, 0))}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Invested (12m)</div>
+                            <div class="summary-value">${formatCurrency(totalInvested)}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Current Paid (Received)</div>
+                            <div class="summary-value text-green">${formatCurrency(totalCurrentPaid)}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Interest Earned</div>
+                            <div class="summary-value text-green">${formatCurrency(totalInterest)}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Late Fees</div>
+                            <div class="summary-value" style="color: ${totalLateFees > 0 ? '#f87171' : '#4ade80'};">${formatCurrency(totalLateFees)}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Final Pool Balance</div>
+                            <div class="summary-value text-blue">${formatCurrency(totalBalance)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('prodataContainer').innerHTML = proDataHTML;
+        }
+
+        function render() {
+            renderConfig();
+            renderMembers();
+            renderLedgers();
+            renderLoan();
+            renderSummary();
+            renderUI();
+            renderRules();
+        }
+
+        // Init
+        loadData(function () { render(); });
+    </script>
+</body>
+</html>
